@@ -35,3 +35,7 @@ backend/.mvn/wrapper/maven-wrapper.jar
 # 临时文件
 *.tmp
 *.temp
+
+# docker运行文件
+data/
+logs/
