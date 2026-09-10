@@ -18,6 +18,7 @@ import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 
 const API_BASE = ''
+const BASENAME = '/my-site'
 
 // 覆盖 window.fetch，统一处理管理后台 API 的 401 响应
 function setupAdminApiInterceptor() {
@@ -33,7 +34,7 @@ function setupAdminApiInterceptor() {
       && !window.location.pathname.includes('/admin/login')
     ) {
       localStorage.removeItem('token')
-      window.location.href = '/admin/login'
+      window.location.href = BASENAME + '/admin/login'
       return res
     }
 
@@ -63,7 +64,7 @@ function App() {
   return (
     <ThemeProvider>
       <LanguageProvider>
-        <Router>
+        <Router basename={BASENAME}>
         <div className="min-h-screen bg-gray-50 flex flex-col">
           <Routes>
             <Route path="/admin/login" element={<LoginPage />} />
