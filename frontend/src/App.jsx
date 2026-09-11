@@ -13,6 +13,7 @@ import ProjectManager from './pages/admin/ProjectManager'
 import SkillManager from './pages/admin/SkillManager'
 import ProfileManager from './pages/admin/ProfileManager'
 import ThemeManager from './pages/admin/ThemeManager'
+import AccountSettings from './pages/admin/AccountSettings'
 import LoginPage from './pages/admin/LoginPage'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
@@ -58,45 +59,46 @@ function App() {
           document.title = `${data.nickname} - 个人网站`
         }
       })
-      .catch(() => {})
+      .catch(() => { })
   }, [])
 
   return (
     <ThemeProvider>
       <LanguageProvider>
         <Router basename={BASENAME}>
-        <div className="min-h-screen bg-gray-50 flex flex-col">
-          <Routes>
-            <Route path="/admin/login" element={<LoginPage />} />
-            <Route path="/admin/*" element={
-              <PrivateRoute>
-                <AdminLayout />
-              </PrivateRoute>
-            }>
-              <Route index element={<Dashboard />} />
-              <Route path="articles" element={<ArticleManager />} />
-              <Route path="projects" element={<ProjectManager />} />
-              <Route path="skills" element={<SkillManager />} />
-              <Route path="profile" element={<ProfileManager />} />
-              <Route path="theme" element={<ThemeManager />} />
-            </Route>
-            <Route path="/*" element={
-              <>
-                <Navbar profile={profile} />
-                <main className="flex-1">
-                  <Routes>
-                    <Route path="/" element={<HomePage />} />
-                    <Route path="/blog" element={<BlogPage />} />
-                    <Route path="/blog/:id" element={<ArticleDetailPage />} />
-                    <Route path="/projects" element={<ProjectsPage />} />
-                  </Routes>
-                </main>
-                <Footer profile={profile} />
-              </>
-            } />
-          </Routes>
-        </div>
-      </Router>
+          <div className="min-h-screen bg-gray-50 flex flex-col">
+            <Routes>
+              <Route path="/admin/login" element={<LoginPage />} />
+              <Route path="/admin/*" element={
+                <PrivateRoute>
+                  <AdminLayout />
+                </PrivateRoute>
+              }>
+                <Route index element={<Dashboard />} />
+                <Route path="articles" element={<ArticleManager />} />
+                <Route path="projects" element={<ProjectManager />} />
+                <Route path="skills" element={<SkillManager />} />
+                <Route path="profile" element={<ProfileManager />} />
+                <Route path="theme" element={<ThemeManager />} />
+                <Route path="account" element={<AccountSettings />} />
+              </Route>
+              <Route path="/*" element={
+                <>
+                  <Navbar profile={profile} />
+                  <main className="flex-1">
+                    <Routes>
+                      <Route path="/" element={<HomePage />} />
+                      <Route path="/blog" element={<BlogPage />} />
+                      <Route path="/blog/:id" element={<ArticleDetailPage />} />
+                      <Route path="/projects" element={<ProjectsPage />} />
+                    </Routes>
+                  </main>
+                  <Footer profile={profile} />
+                </>
+              } />
+            </Routes>
+          </div>
+        </Router>
       </LanguageProvider>
     </ThemeProvider>
   )
