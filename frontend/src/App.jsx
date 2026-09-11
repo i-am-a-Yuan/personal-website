@@ -13,6 +13,7 @@ import ProjectManager from './pages/admin/ProjectManager'
 import SkillManager from './pages/admin/SkillManager'
 import ProfileManager from './pages/admin/ProfileManager'
 import ThemeManager from './pages/admin/ThemeManager'
+import AccountSettings from './pages/admin/AccountSettings'
 import LoginPage from './pages/admin/LoginPage'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
@@ -78,6 +79,7 @@ function App() {
               <Route path="skills" element={<SkillManager />} />
               <Route path="profile" element={<ProfileManager />} />
               <Route path="theme" element={<ThemeManager />} />
+              <Route path="account" element={<AccountSettings />} />
             </Route>
             <Route path="/*" element={
               <>
