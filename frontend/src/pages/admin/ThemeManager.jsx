@@ -223,13 +223,16 @@ export default function ThemeManager() {
               <Eye className="w-5 h-5 text-gray-400" />
             </div>
             
-            <div 
+            <div
               className="rounded-xl p-4 min-h-[300px] relative overflow-hidden"
-              style={{ 
-                background: activeTheme.background,
-                color: activeTheme.textPrimary
-              }}
+              style={{ color: activeTheme.textPrimary }}
             >
+              {/* 背景层（20% 透明度） */}
+              <div
+                className="absolute inset-0 opacity-20"
+                style={{ background: activeTheme.background }}
+              />
+
               {/* Preview Content */}
               <div className="relative z-10">
                 <div 
@@ -259,9 +262,9 @@ export default function ThemeManager() {
                   >
                     主要按钮
                   </button>
-                  <button 
-                    className="px-4 py-2 rounded-lg border font-medium"
-                    style={{ 
+                  <button
+                    className="px-4 py-2 rounded-lg border-2 font-medium"
+                    style={{
                       borderColor: activeTheme.primary,
                       color: activeTheme.primary
                     }}
