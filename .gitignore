@@ -39,3 +39,13 @@ backend/.mvn/wrapper/maven-wrapper.jar
 # docker运行文件
 data/
 logs/
+
+## 开发时忽略
+*.yml
+backend/src/main/resources/application.yml
+backend/src/main/resources/application-prod.yml
+# .gitignore
+.gitignore
+
+# claude 子文件
+.claude
