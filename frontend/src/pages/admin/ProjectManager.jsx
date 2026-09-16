@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Plus, Edit2, Trash2, X, FolderGit, Star, ExternalLink, Loader } from 'lucide-react'
+import { Plus, Edit2, Trash2, X, FolderGit, Star, ExternalLink, Loader, Upload } from 'lucide-react'
 
 const API_BASE = ''
 
@@ -9,17 +9,47 @@ export default function ProjectManager() {
   const [saving, setSaving] = useState(false)
   const [showModal, setShowModal] = useState(false)
   const [editingProject, setEditingProject] = useState(null)
-  const [form, setForm] = useState({ 
-    name: '', 
-    description: '', 
-    techStack: '', 
-    githubUrl: '', 
-    demoUrl: '', 
-    featured: false, 
-    displayOrder: 0 
+  const [form, setForm] = useState({
+    name: '',
+    description: '',
+    coverImage: '',
+    techStack: '',
+    githubUrl: '',
+    demoUrl: '',
+    featured: false,
+    displayOrder: 0
   })
-
+  const [uploading, setUploading] = useState(false)
   const token = localStorage.getItem('token')
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploading(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const res = await fetch(`${API_BASE}/api/admin/upload/image`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData
+      })
+
+      const data = await res.json()
+      if (res.ok && data.url) {
+        setForm({ ...form, coverImage: data.url })
+      } else {
+        alert(data.error || '上传失败')
+      }
+    } catch (err) {
+      console.error('上传失败:', err)
+      alert('上传失败，请重试')
+    } finally {
+      setUploading(false)
+    }
+  }
 
   useEffect(() => { fetchProjects() }, [])
 
@@ -83,7 +113,7 @@ export default function ProjectManager() {
       if (res.ok) {
         setShowModal(false)
         setEditingProject(null)
-        setForm({ name: '', description: '', techStack: '', githubUrl: '', demoUrl: '', featured: false, displayOrder: 0 })
+        setForm({ name: '', description: '', coverImage: '', techStack: '', githubUrl: '', demoUrl: '', featured: false, displayOrder: 0 })
         fetchProjects()
       } else {
         alert('保存失败')
@@ -97,14 +127,15 @@ export default function ProjectManager() {
 
   const handleEdit = (project) => {
     setEditingProject(project)
-    setForm({ 
-      name: project.name, 
-      description: project.description || '', 
-      techStack: project.techStack || '', 
-      githubUrl: project.githubUrl || '', 
-      demoUrl: project.demoUrl || '', 
-      featured: project.featured, 
-      displayOrder: project.displayOrder || 0 
+    setForm({
+      name: project.name,
+      description: project.description || '',
+      coverImage: project.coverImage || '',
+      techStack: project.techStack || '',
+      githubUrl: project.githubUrl || '',
+      demoUrl: project.demoUrl || '',
+      featured: project.featured,
+      displayOrder: project.displayOrder || 0
     })
     setShowModal(true)
   }
@@ -133,10 +164,10 @@ export default function ProjectManager() {
           <p className="text-gray-500 text-sm mt-1">管理您的作品集项目</p>
         </div>
         <button 
-          onClick={() => { 
+          onClick={() => {
             setEditingProject(null)
-            setForm({ name: '', description: '', techStack: '', githubUrl: '', demoUrl: '', featured: false, displayOrder: 0 })
-            setShowModal(true) 
+            setForm({ name: '', description: '', coverImage: '', techStack: '', githubUrl: '', demoUrl: '', featured: false, displayOrder: 0 })
+            setShowModal(true)
           }} 
           className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-xl flex items-center gap-2 shadow-lg shadow-purple-500/20 transition-all"
         >
@@ -266,13 +297,44 @@ export default function ProjectManager() {
                 />
               </div>
               <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">封面图片</label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="图片URL或上传图片"
+                    value={form.coverImage}
+                    onChange={e => setForm({ ...form, coverImage: e.target.value })}
+                    className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                  />
+                  <label className="px-4 py-2.5 bg-purple-500 hover:bg-purple-600 text-white rounded-xl cursor-pointer transition-colors flex items-center gap-1.5 whitespace-nowrap">
+                    <Upload className="w-4 h-4" />
+                    {uploading ? '上传中' : '上传'}
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/gif,image/webp"
+                      className="hidden"
+                      onChange={handleImageUpload}
+                      disabled={uploading}
+                    />
+                  </label>
+                </div>
+                {form.coverImage && (
+                  <img
+                    src={form.coverImage}
+                    alt="封面预览"
+                    className="mt-2 w-full h-32 object-cover rounded-lg"
+                    onError={(e) => e.target.style.display = 'none'}
+                  />
+                )}
+              </div>
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">技术栈</label>
-                <input 
-                  type="text" 
-                  placeholder="React, Node.js, MongoDB（用逗号分隔）" 
-                  value={form.techStack} 
-                  onChange={e => setForm({ ...form, techStack: e.target.value })} 
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500" 
+                <input
+                  type="text"
+                  placeholder="React, Node.js, MongoDB（用逗号分隔）"
+                  value={form.techStack}
+                  onChange={e => setForm({ ...form, techStack: e.target.value })}
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
