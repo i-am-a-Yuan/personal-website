@@ -40,5 +40,8 @@ backend/.mvn/wrapper/maven-wrapper.jar
 data/
 logs/
 
+# dev开发时 yml 不变
+.yml
+
 # claude开发文件
 .claude
