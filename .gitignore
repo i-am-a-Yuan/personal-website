@@ -39,3 +39,6 @@ backend/.mvn/wrapper/maven-wrapper.jar
 # docker运行文件
 data/
 logs/
+
+# claude开发文件
+.claude
