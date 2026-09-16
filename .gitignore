@@ -44,8 +44,7 @@ logs/
 *.yml
 backend/src/main/resources/application.yml
 backend/src/main/resources/application-prod.yml
-# .gitignore
 .gitignore
 
-# claude 子文件
+# claude开发文件
 .claude

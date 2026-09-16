@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { FileText, Folder, Award, Eye, TrendingUp, Sparkles } from 'lucide-react'
 
 const API_BASE = ''
@@ -80,12 +81,12 @@ export default function Dashboard() {
           在这里你可以管理文章、项目、技能和个人信息。使用左侧导航栏切换不同的管理模块。
         </p>
         <div className="mt-4 flex gap-3">
-          <a href="/admin/articles" className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg text-sm transition-colors">
+          <Link to="/admin/articles" className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg text-sm transition-colors">
             管理文章
-          </a>
-          <a href="/admin/projects" className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg text-sm transition-colors">
+          </Link>
+          <Link to="/admin/projects" className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg text-sm transition-colors">
             管理项目
-          </a>
+          </Link>
         </div>
       </div>
 
@@ -96,15 +97,15 @@ export default function Dashboard() {
             快速操作
           </h3>
           <div className="space-y-3">
-            <a href="/admin/articles" className="block p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
+            <Link to="/admin/articles" className="block p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
               <span className="text-gray-700">📝 新建文章</span>
-            </a>
-            <a href="/admin/projects" className="block p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
+            </Link>
+            <Link to="/admin/projects" className="block p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
               <span className="text-gray-700">📁 新建项目</span>
-            </a>
-            <a href="/admin/skills" className="block p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
+            </Link>
+            <Link to="/admin/skills" className="block p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
               <span className="text-gray-700">⚡ 添加技能</span>
-            </a>
+            </Link>
           </div>
         </div>
 

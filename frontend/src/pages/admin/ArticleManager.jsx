@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { Plus, Edit2, Trash2, X, FileText, Tag, Calendar, Check, Loader, Save, Eye, Hash } from 'lucide-react'
+import { Plus, Edit2, Trash2, X, FileText, Tag, Calendar, Check, Loader, Save, Eye, Hash, Upload } from 'lucide-react'
 import RichTextEditor from '../../components/RichTextEditor'
 
 const API_BASE = ''
@@ -21,11 +21,41 @@ export default function ArticleManager() {
     coverImage: ''
   })
 
+  const [uploading, setUploading] = useState(false)
   const token = localStorage.getItem('token')
 
   useEffect(() => {
     fetchArticles()
   }, [])
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploading(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const res = await fetch(`${API_BASE}/api/admin/upload/image`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData
+      })
+
+      const data = await res.json()
+      if (res.ok && data.url) {
+        setForm({ ...form, coverImage: data.url })
+      } else {
+        alert(data.error || '上传失败')
+      }
+    } catch (err) {
+      console.error('上传失败:', err)
+      alert('上传失败，请重试')
+    } finally {
+      setUploading(false)
+    }
+  }
 
   const fetchArticles = async () => {
     setLoading(true)
@@ -324,17 +354,30 @@ export default function ArticleManager() {
                   
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">封面图片</label>
-                    <input
-                      type="text"
-                      placeholder="https://example.com/image.jpg"
-                      value={form.coverImage}
-                      onChange={e => setForm({ ...form, coverImage: e.target.value })}
-                      className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white"
-                    />
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        placeholder="图片URL或上传图片"
+                        value={form.coverImage}
+                        onChange={e => setForm({ ...form, coverImage: e.target.value })}
+                        className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white"
+                      />
+                      <label className="px-4 py-2.5 bg-purple-500 hover:bg-purple-600 text-white rounded-xl cursor-pointer transition-colors flex items-center gap-1.5 whitespace-nowrap">
+                        <Upload className="w-4 h-4" />
+                        {uploading ? '上传中' : '上传'}
+                        <input
+                          type="file"
+                          accept="image/jpeg,image/png,image/gif,image/webp"
+                          className="hidden"
+                          onChange={handleImageUpload}
+                          disabled={uploading}
+                        />
+                      </label>
+                    </div>
                     {form.coverImage && (
-                      <img 
-                        src={form.coverImage} 
-                        alt="封面预览" 
+                      <img
+                        src={form.coverImage}
+                        alt="封面预览"
                         className="mt-2 w-full h-32 object-cover rounded-lg"
                         onError={(e) => e.target.style.display = 'none'}
                       />
