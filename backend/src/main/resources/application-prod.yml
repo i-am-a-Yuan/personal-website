@@ -29,6 +29,10 @@ jwt:
   secret: your-production-secret-key-change-this-in-production
   expiration: 86400000
 
+# 文件上传目录
+app:
+  upload-dir: /app/data/uploads
+
 # 日志配置
 logging:
   level:

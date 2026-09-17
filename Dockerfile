@@ -52,8 +52,9 @@ COPY docker/nginx.conf /etc/nginx/sites-enabled/default
 # 复制 supervisor 配置 (管理多个进程)
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# 创建数据目录
+# 创建数据目录（数据库 + 上传图片）
 RUN mkdir -p /app/data
+RUN mkdir -p /app/data/uploads
 
 # 暴露端口
 # 80: 前端 (nginx)

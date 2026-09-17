@@ -11,12 +11,12 @@ export default function ArticleManager() {
   const [saving, setSaving] = useState(false)
   const [showModal, setShowModal] = useState(false)
   const [editingArticle, setEditingArticle] = useState(null)
-  const [form, setForm] = useState({ 
-    title: '', 
-    summary: '', 
-    content: '', 
-    category: '', 
-    tags: [], 
+  const [form, setForm] = useState({
+    title: '',
+    summary: '',
+    content: '',
+    category: '',
+    tags: [],
     published: true,
     coverImage: ''
   })
@@ -65,9 +65,9 @@ export default function ArticleManager() {
       if (tokenValue) {
         headers['Authorization'] = `Bearer ${tokenValue}`
       }
-      
+
       const res = await fetch(`${API_BASE}/api/admin/articles?page=0&size=100`, { headers })
-      
+
       if (!res.ok) {
         console.error('获取文章列表失败:', res.status)
         const text = await res.text()
@@ -75,7 +75,7 @@ export default function ArticleManager() {
         setArticles([])
         return
       }
-      
+
       const text = await res.text()
       let data
       try {
@@ -85,7 +85,7 @@ export default function ArticleManager() {
         setArticles([])
         return
       }
-      
+
       setArticles(Array.isArray(data) ? data : (data.content || []))
     } catch (err) {
       console.error('获取文章列表失败:', err)
@@ -98,7 +98,7 @@ export default function ArticleManager() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setSaving(true)
-    
+
     const url = editingArticle
       ? `${API_BASE}/api/admin/articles/${editingArticle.id}`
       : `${API_BASE}/api/admin/articles`
@@ -113,18 +113,18 @@ export default function ArticleManager() {
         },
         body: JSON.stringify({ ...form, tags: form.tags.join(',') })
       })
-      
+
       if (res.ok) {
         setShowModal(false)
         setEditingArticle(null)
-        setForm({ 
-          title: '', 
-          summary: '', 
-          content: '', 
-          category: '', 
-          tags: [], 
+        setForm({
+          title: '',
+          summary: '',
+          content: '',
+          category: '',
+          tags: [],
           published: true,
-          coverImage: '' 
+          coverImage: ''
         })
         fetchArticles()
       } else {
@@ -154,13 +154,13 @@ export default function ArticleManager() {
 
   const handleDelete = async (id) => {
     if (!confirm('确定要删除这篇文章吗？此操作不可撤销。')) return
-    
+
     try {
       const res = await fetch(`${API_BASE}/api/admin/articles/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       })
-      
+
       if (res.ok) {
         fetchArticles()
       } else {
@@ -184,14 +184,14 @@ export default function ArticleManager() {
         <button
           onClick={() => {
             setEditingArticle(null)
-            setForm({ 
-              title: '', 
-              summary: '', 
-              content: '', 
-              category: '', 
-              tags: [], 
+            setForm({
+              title: '',
+              summary: '',
+              content: '',
+              category: '',
+              tags: [],
               published: true,
-              coverImage: '' 
+              coverImage: ''
             })
             setShowModal(true)
           }}
@@ -245,11 +245,10 @@ export default function ArticleManager() {
                     )}
                   </td>
                   <td className="px-6 py-4">
-                    <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full ${
-                      article.published 
-                        ? 'bg-green-100 text-green-700' 
-                        : 'bg-gray-100 text-gray-600'
-                    }`}>
+                    <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full ${article.published
+                      ? 'bg-green-100 text-green-700'
+                      : 'bg-gray-100 text-gray-600'
+                      }`}>
                       {article.published && <Check className="w-3 h-3" />}
                       {article.published ? '已发布' : '草稿'}
                     </span>
@@ -268,15 +267,15 @@ export default function ArticleManager() {
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <button 
-                        onClick={() => handleEdit(article)} 
+                      <button
+                        onClick={() => handleEdit(article)}
                         className="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
                         title="编辑"
                       >
                         <Edit2 className="w-4 h-4" />
                       </button>
-                      <button 
-                        onClick={() => handleDelete(article.id)} 
+                      <button
+                        onClick={() => handleDelete(article.id)}
                         className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                         title="删除"
                       >
@@ -307,7 +306,7 @@ export default function ArticleManager() {
                 )}
               </div>
               <div className="flex items-center gap-2">
-                <button 
+                <button
                   onClick={handleSubmit}
                   disabled={saving || !form.title}
                   className="px-4 py-2 bg-white rounded-lg font-medium hover:bg-gray-100 transition-colors disabled:opacity-50 flex items-center gap-2"
@@ -325,8 +324,8 @@ export default function ArticleManager() {
                     </>
                   )}
                 </button>
-                <button 
-                  onClick={() => setShowModal(false)} 
+                <button
+                  onClick={() => setShowModal(false)}
                   className="p-2 text-white/80 hover:text-white transition-colors"
                 >
                   <X className="w-5 h-5" />
@@ -351,7 +350,7 @@ export default function ArticleManager() {
                       className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white"
                     />
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">封面图片</label>
                     <div className="flex gap-2">
@@ -360,7 +359,7 @@ export default function ArticleManager() {
                         placeholder="图片URL或上传图片"
                         value={form.coverImage}
                         onChange={e => setForm({ ...form, coverImage: e.target.value })}
-                        className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white"
+                        className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-100 bg-white"
                       />
                       <label className="px-4 py-2.5 bg-purple-500 hover:bg-purple-600 text-white rounded-xl cursor-pointer transition-colors flex items-center gap-1.5 whitespace-nowrap">
                         <Upload className="w-4 h-4" />
@@ -383,7 +382,7 @@ export default function ArticleManager() {
                       />
                     )}
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">摘要</label>
                     <textarea
@@ -394,7 +393,7 @@ export default function ArticleManager() {
                       rows={3}
                     />
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">分类</label>
                     <input
@@ -405,16 +404,16 @@ export default function ArticleManager() {
                       className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white"
                     />
                   </div>
-                  
+
                   {/* TagInput 组件 */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">标签</label>
-                    <TagInput 
-                      tags={form.tags} 
-                      onChange={(tags) => setForm({ ...form, tags })} 
+                    <TagInput
+                      tags={form.tags}
+                      onChange={(tags) => setForm({ ...form, tags })}
                     />
                   </div>
-                  
+
                   <label className="flex items-center gap-3 p-3 bg-white rounded-xl cursor-pointer hover:bg-gray-100 transition-colors border border-gray-200">
                     <input
                       type="checkbox"
