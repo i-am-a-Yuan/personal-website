@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { Plus, Edit2, Trash2, X, FileText, Tag, Calendar, Check, Loader, Save, Eye, Hash, Upload } from 'lucide-react'
+import { Plus, Edit2, Trash2, X, FileText, Tag, Calendar, Check, Loader, Save, Eye, Hash, Upload, FolderOpen } from 'lucide-react'
 import RichTextEditor from '../../components/RichTextEditor'
 
 const API_BASE = ''
@@ -22,6 +22,11 @@ export default function ArticleManager() {
   })
 
   const [uploading, setUploading] = useState(false)
+  const [showMediaPicker, setShowMediaPicker] = useState(false)
+  const [mediaList, setMediaList] = useState([])
+  const [mediaLoading, setMediaLoading] = useState(false)
+  const [mediaPage, setMediaPage] = useState(0)
+  const [mediaTotalPages, setMediaTotalPages] = useState(0)
   const token = localStorage.getItem('token')
 
   useEffect(() => {
@@ -57,7 +62,33 @@ export default function ArticleManager() {
     }
   }
 
-  const fetchArticles = async () => {
+  // === 媒体库选择器 ===
+  const openMediaPicker = () => {
+    setMediaPage(0)
+    setShowMediaPicker(true)
+    fetchMediaList(0)
+  }
+
+  const fetchMediaList = async (pageNum = 0) => {
+    setMediaLoading(true)
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/media?page=${pageNum}&size=24`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      const data = await res.json()
+      setMediaList(data.content || [])
+      setMediaTotalPages(data.totalPages || 0)
+    } catch (err) {
+      console.error('获取媒体列表失败:', err)
+    } finally {
+      setMediaLoading(false)
+    }
+  }
+
+  const selectMedia = (media) => {
+    setForm({ ...form, coverImage: `${API_BASE}/api/public/media/${media.id}` })
+    setShowMediaPicker(false)
+  }
     setLoading(true)
     try {
       const tokenValue = localStorage.getItem('token')
@@ -361,7 +392,7 @@ export default function ArticleManager() {
                         onChange={e => setForm({ ...form, coverImage: e.target.value })}
                         className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-100 bg-white"
                       />
-                      <label className="px-4 py-2.5 bg-purple-500 hover:bg-purple-600 text-white rounded-xl cursor-pointer transition-colors flex items-center gap-1.5 whitespace-nowrap">
+                      <label className="px-3 py-2.5 bg-purple-500 hover:bg-purple-600 text-white rounded-xl cursor-pointer transition-colors flex items-center gap-1.5">
                         <Upload className="w-4 h-4" />
                         {uploading ? '上传中' : '上传'}
                         <input
@@ -372,6 +403,15 @@ export default function ArticleManager() {
                           disabled={uploading}
                         />
                       </label>
+                      <button
+                        type="button"
+                        onClick={openMediaPicker}
+                        className="px-3 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl transition-colors flex items-center gap-1.5"
+                        title="从资源库选择"
+                      >
+                        <FolderOpen className="w-4 h-4" />
+                        库选
+                      </button>
                     </div>
                     {form.coverImage && (
                       <img
@@ -443,6 +483,94 @@ export default function ArticleManager() {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* 媒体库选择器弹窗 */}
+      {showMediaPicker && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[80vh] flex flex-col shadow-2xl">
+            <div className="flex justify-between items-center p-5 border-b border-gray-100">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                <FolderOpen className="w-5 h-5 text-purple-600" />
+                从资源库选择
+              </h3>
+              <button
+                onClick={() => setShowMediaPicker(false)}
+                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-5">
+              {mediaLoading ? (
+                <div className="flex items-center justify-center py-16">
+                  <Loader className="w-6 h-6 animate-spin text-purple-500" />
+                  <span className="ml-2 text-gray-500">加载中...</span>
+                </div>
+              ) : mediaList.length === 0 ? (
+                <div className="text-center py-16 text-gray-500">
+                  <FolderOpen className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                  <p>资源库为空，先去上传图片吧</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                  {mediaList.map((media) => (
+                    <div
+                      key={media.id}
+                      onClick={() => selectMedia(media)}
+                      className="group relative aspect-square bg-gray-50 rounded-xl overflow-hidden cursor-pointer border-2 border-transparent hover:border-purple-500 transition-all"
+                    >
+                      <img
+                        src={`${API_BASE}/api/public/media/${media.id}`}
+                        alt={media.filename}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-purple-500/0 group-hover:bg-purple-500/20 transition-colors flex items-center justify-center">
+                        <div className="opacity-0 group-hover:opacity-100 bg-purple-500 text-white px-3 py-1 rounded-full text-sm font-medium transition-opacity">
+                          选择
+                        </div>
+                      </div>
+                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
+                        <p className="text-xs text-white truncate">{media.filename}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {mediaTotalPages > 1 && (
+              <div className="flex justify-center items-center gap-2 p-4 border-t border-gray-100">
+                <button
+                  onClick={() => {
+                    const newPage = Math.max(0, mediaPage - 1)
+                    setMediaPage(newPage)
+                    fetchMediaList(newPage)
+                  }}
+                  disabled={mediaPage === 0}
+                  className="px-4 py-1.5 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  上一页
+                </button>
+                <span className="text-sm text-gray-500 px-4">
+                  第 {mediaPage + 1} / {mediaTotalPages} 页
+                </span>
+                <button
+                  onClick={() => {
+                    const newPage = Math.min(mediaTotalPages - 1, mediaPage + 1)
+                    setMediaPage(newPage)
+                    fetchMediaList(newPage)
+                  }}
+                  disabled={mediaPage >= mediaTotalPages - 1}
+                  className="px-4 py-1.5 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  下一页
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
