@@ -10,6 +10,7 @@ import AdminLayout from './pages/admin/AdminLayout'
 import Dashboard from './pages/admin/Dashboard'
 import ArticleManager from './pages/admin/ArticleManager'
 import ProjectManager from './pages/admin/ProjectManager'
+import MediaManager from './pages/admin/MediaManager'
 import SkillManager from './pages/admin/SkillManager'
 import ProfileManager from './pages/admin/ProfileManager'
 import ThemeManager from './pages/admin/ThemeManager'
@@ -77,6 +78,7 @@ function App() {
                 <Route index element={<Dashboard />} />
                 <Route path="articles" element={<ArticleManager />} />
                 <Route path="projects" element={<ProjectManager />} />
+                <Route path="media" element={<MediaManager />} />
                 <Route path="skills" element={<SkillManager />} />
                 <Route path="profile" element={<ProfileManager />} />
                 <Route path="theme" element={<ThemeManager />} />

@@ -1,5 +1,5 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, FileText, Folder, Award, User, LogOut, Palette, Sparkles, Settings } from 'lucide-react'
+import { LayoutDashboard, FileText, Folder, Award, User, LogOut, Palette, Sparkles, Settings, Image } from 'lucide-react'
 
 export default function AdminLayout() {
   const navigate = useNavigate()
@@ -15,6 +15,7 @@ export default function AdminLayout() {
     { path: '/admin', label: '概览', icon: LayoutDashboard, exact: true },
     { path: '/admin/articles', label: '文章管理', icon: FileText },
     { path: '/admin/projects', label: '项目管理', icon: Folder },
+    { path: '/admin/media', label: '资源管理', icon: Image },
     { path: '/admin/skills', label: '技能管理', icon: Award },
     { path: '/admin/theme', label: '主题管理', icon: Palette },
     { path: '/admin/profile', label: '个人信息', icon: User },
