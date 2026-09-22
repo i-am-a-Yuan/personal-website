@@ -2,15 +2,21 @@ package com.personal.website.controller;
 
 import com.personal.website.entity.*;
 import com.personal.website.repository.*;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/api/public")
@@ -21,15 +27,21 @@ public class PublicController {
     private final ProjectRepository projectRepository;
     private final SkillRepository skillRepository;
     private final UserRepository userRepository;
-    
-    public PublicController(ArticleRepository articleRepository, 
+    private final MediaRepository mediaRepository;
+
+    @Value("${app.upload-dir:./uploads}")
+    private String uploadDir;
+
+    public PublicController(ArticleRepository articleRepository,
                            ProjectRepository projectRepository,
                            SkillRepository skillRepository,
-                           UserRepository userRepository) {
+                           UserRepository userRepository,
+                           MediaRepository mediaRepository) {
         this.articleRepository = articleRepository;
         this.projectRepository = projectRepository;
         this.skillRepository = skillRepository;
         this.userRepository = userRepository;
+        this.mediaRepository = mediaRepository;
     }
     
     @GetMapping("/articles")
@@ -161,6 +173,25 @@ public class PublicController {
                 "articleCount", articleCount,
                 "starsCount", user.getStarsCount() != null ? user.getStarsCount() : (int) totalStars
             )))
+            .orElse(ResponseEntity.notFound().build());
+    }
+
+    // 媒体文件访问（中间层，不暴露真实路径）
+    @GetMapping("/media/{id}")
+    public ResponseEntity<?> getMedia(@PathVariable Long id) {
+        return mediaRepository.findById(id)
+            .map(media -> {
+                File file = new File(uploadDir, media.getFullPath());
+                if (!file.exists()) {
+                    return ResponseEntity.notFound().build();
+                }
+                Resource resource = new FileSystemResource(file);
+                return ResponseEntity.ok()
+                    .contentType(org.springframework.http.MediaType.parseMediaType(
+                        media.getMimeType() != null ? media.getMimeType() : "application/octet-stream"))
+                    .cacheControl(CacheControl.maxAge(30, TimeUnit.DAYS).cachePublic())
+                    .body(resource);
+            })
             .orElse(ResponseEntity.notFound().build());
     }
 }

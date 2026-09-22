@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { Plus, Edit2, Trash2, X, FileText, Tag, Calendar, Check, Loader, Save, Eye, Hash, Upload } from 'lucide-react'
+import { Plus, Edit2, Trash2, X, FileText, Tag, Calendar, Check, Loader, Save, Eye, Hash, Upload, FolderOpen } from 'lucide-react'
 import RichTextEditor from '../../components/RichTextEditor'
+import MediaPicker from '../../components/MediaPicker'
 
 const API_BASE = ''
 
@@ -22,6 +23,7 @@ export default function ArticleManager() {
   })
 
   const [uploading, setUploading] = useState(false)
+  const [showMediaPicker, setShowMediaPicker] = useState(false)
   const token = localStorage.getItem('token')
 
   useEffect(() => {
@@ -56,8 +58,6 @@ export default function ArticleManager() {
       setUploading(false)
     }
   }
-
-  const fetchArticles = async () => {
     setLoading(true)
     try {
       const tokenValue = localStorage.getItem('token')
@@ -361,7 +361,7 @@ export default function ArticleManager() {
                         onChange={e => setForm({ ...form, coverImage: e.target.value })}
                         className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-100 bg-white"
                       />
-                      <label className="px-4 py-2.5 bg-purple-500 hover:bg-purple-600 text-white rounded-xl cursor-pointer transition-colors flex items-center gap-1.5 whitespace-nowrap">
+                      <label className="px-3 py-2.5 bg-purple-500 hover:bg-purple-600 text-white rounded-xl cursor-pointer transition-colors flex items-center gap-1.5">
                         <Upload className="w-4 h-4" />
                         {uploading ? '上传中' : '上传'}
                         <input
@@ -372,6 +372,15 @@ export default function ArticleManager() {
                           disabled={uploading}
                         />
                       </label>
+                      <button
+                        type="button"
+                        onClick={() => setShowMediaPicker(true)}
+                        className="px-3 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl transition-colors flex items-center gap-1.5"
+                        title="从资源库选择"
+                      >
+                        <FolderOpen className="w-4 h-4" />
+                        库选
+                      </button>
                     </div>
                     {form.coverImage && (
                       <img
@@ -446,6 +455,13 @@ export default function ArticleManager() {
           </div>
         </div>
       )}
+
+      {/* 媒体库选择器 */}
+      <MediaPicker
+        isOpen={showMediaPicker}
+        onClose={() => setShowMediaPicker(false)}
+        onSelect={(url) => setForm({ ...form, coverImage: url })}
+      />
     </div>
   )
 }
