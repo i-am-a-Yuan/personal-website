@@ -45,3 +45,6 @@ logs/
 
 # claude开发文件
 .claude
+
+# 后端资源库
+backend/uploads
