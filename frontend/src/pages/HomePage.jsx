@@ -141,22 +141,22 @@ export default function HomePage() {
       />
 
       {/* 统计数据 */}
-      <StatsSection stats={displayStats} />
+      {/* <StatsSection stats={displayStats} /> */}
 
       {/* 特色功能 */}
-      <FeaturesSection features={features} t={t} />
+      {/* <FeaturesSection features={features} t={t} /> */}
 
       {/* 技能展示 */}
-      <SkillsSection skillCategories={skillCategories} t={t} />
+      {/* <SkillsSection skillCategories={skillCategories} t={t} /> */}
 
       {/* 最新文章 */}
-      <ArticlesSection articles={articles} t={t} />
+      {/* <ArticlesSection articles={articles} t={t} /> */}
 
       {/* 精选项目 */}
-      <ProjectsSection projects={projects} t={t} />
+      {/* <ProjectsSection projects={projects} t={t} /> */}
 
       {/* CTA 区域 */}
-      <CtaSection profile={profile} t={t} />
+      {/* <CtaSection profile={profile} t={t} /> */}
     </div>
   )
 }
