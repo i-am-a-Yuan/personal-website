@@ -3,12 +3,12 @@ import { Code, Coffee, PenTool, Rocket, Database, Globe, Star } from 'lucide-rea
 import { useLanguage } from '../contexts/LanguageContext'
 import { useTranslation } from '../i18n/translations'
 import HeroSection from './homepage/HeroSection'
-import StatsSection from './homepage/StatsSection'
-import FeaturesSection from './homepage/FeaturesSection'
-import SkillsSection from './homepage/SkillsSection'
-import ArticlesSection from './homepage/ArticlesSection'
-import ProjectsSection from './homepage/ProjectsSection'
-import CtaSection from './homepage/CtaSection'
+// import StatsSection from './homepage/StatsSection'
+// import FeaturesSection from './homepage/FeaturesSection'
+// import SkillsSection from './homepage/SkillsSection'
+// import ArticlesSection from './homepage/ArticlesSection'
+// import ProjectsSection from './homepage/ProjectsSection'
+// import CtaSection from './homepage/CtaSection'
 
 export default function HomePage() {
   const [articles, setArticles] = useState([])
@@ -20,50 +20,50 @@ export default function HomePage() {
   const { language } = useLanguage()
   const { t } = useTranslation()
 
-  useEffect(() => {
-    // 使用真实后端 API
-    fetch('/api/public/articles?page=0&size=3')
-      .then(res => res.json())
-      .then(data => setArticles(data.content || []))
-      .catch(() => {
-        // 如果后端不可用，使用 mock 数据
-        import('../api/mockApi').then(module => {
-          setArticles(module.default.getArticles().slice(0, 3))
-        })
-      })
+  // useEffect(() => {
+  //   // 使用真实后端 API
+  //   fetch('/api/public/articles?page=0&size=3')
+  //     .then(res => res.json())
+  //     .then(data => setArticles(data.content || []))
+  //     .catch(() => {
+  //       // 如果后端不可用，使用 mock 数据
+  //       import('../api/mockApi').then(module => {
+  //         setArticles(module.default.getArticles().slice(0, 3))
+  //       })
+  //     })
 
-    fetch('/api/public/projects/featured')
-      .then(res => res.json())
-      .then(data => setProjects(data || []))
-      .catch(() => {
-        import('../api/mockApi').then(module => {
-          setProjects(module.default.getProjects().filter(p => p.featured))
-        })
-      })
+  //   fetch('/api/public/projects/featured')
+  //     .then(res => res.json())
+  //     .then(data => setProjects(data || []))
+  //     .catch(() => {
+  //       import('../api/mockApi').then(module => {
+  //         setProjects(module.default.getProjects().filter(p => p.featured))
+  //       })
+  //     })
 
-    fetch('/api/public/skills')
-      .then(res => res.json())
-      .then(data => setSkills(data || []))
-      .catch(() => {
-        import('../api/mockApi').then(module => {
-          setSkills(module.default.getSkills())
-        })
-      })
+  //   fetch('/api/public/skills')
+  //     .then(res => res.json())
+  //     .then(data => setSkills(data || []))
+  //     .catch(() => {
+  //       import('../api/mockApi').then(module => {
+  //         setSkills(module.default.getSkills())
+  //       })
+  //     })
 
-    // 获取统计数据
-    fetch('/api/public/stats')
-      .then(res => res.json())
-      .then(data => setStats(data))
-      .catch(() => {
-        // 使用默认统计数据
-      })
+  //   // 获取统计数据
+  //   fetch('/api/public/stats')
+  //     .then(res => res.json())
+  //     .then(data => setStats(data))
+  //     .catch(() => {
+  //       // 使用默认统计数据
+  //     })
 
-    const handleMouseMove = (e) => {
-      setMousePosition({ x: e.clientX, y: e.clientY })
-    }
-    window.addEventListener('mousemove', handleMouseMove)
-    return () => window.removeEventListener('mousemove', handleMouseMove)
-  }, [])
+  //   const handleMouseMove = (e) => {
+  //     setMousePosition({ x: e.clientX, y: e.clientY })
+  //   }
+  //   window.addEventListener('mousemove', handleMouseMove)
+  //   return () => window.removeEventListener('mousemove', handleMouseMove)
+  // }, [])
 
   // 语言切换时重新获取 profile
   useEffect(() => {
@@ -77,11 +77,11 @@ export default function HomePage() {
       })
   }, [language])
 
-  const skillCategories = skills.reduce((acc, skill) => {
-    if (!acc[skill.category]) acc[skill.category] = []
-    acc[skill.category].push(skill)
-    return acc
-  }, {})
+  // const skillCategories = skills.reduce((acc, skill) => {
+  //   if (!acc[skill.category]) acc[skill.category] = []
+  //   acc[skill.category].push(skill)
+  //   return acc
+  // }, {})
 
   // 职业标签：从 profile.tags 解析，或使用默认值
   const defaultTags = language === 'en'
