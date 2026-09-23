@@ -64,9 +64,9 @@ function App() {
   }, [])
 
   return (
-    <ThemeProvider>
-      <LanguageProvider>
-        <Router basename={BASENAME}>
+    <Router basename={BASENAME}>
+      <ThemeProvider>
+        <LanguageProvider>
           <div className="min-h-screen bg-gray-50 flex flex-col">
             <Routes>
               <Route path="/admin/login" element={<LoginPage />} />
@@ -100,9 +100,9 @@ function App() {
               } />
             </Routes>
           </div>
-        </Router>
-      </LanguageProvider>
-    </ThemeProvider>
+        </LanguageProvider>
+      </ThemeProvider>
+    </Router>
   )
 }
 
