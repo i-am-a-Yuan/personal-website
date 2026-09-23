@@ -40,11 +40,19 @@ backend/.mvn/wrapper/maven-wrapper.jar
 data/
 logs/
 
+<<<<<<< HEAD
 ## 开发时忽略
 *.yml
 backend/src/main/resources/application.yml
 backend/src/main/resources/application-prod.yml
 .gitignore
+=======
+# dev开发时 yml 不变
+.yml
+>>>>>>> dev
 
 # claude开发文件
 .claude
+
+# 后端资源库
+backend/uploads

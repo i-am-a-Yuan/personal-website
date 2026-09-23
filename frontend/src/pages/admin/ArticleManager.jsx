@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { Plus, Edit2, Trash2, X, FileText, Tag, Calendar, Check, Loader, Save, Eye, Hash, Upload } from 'lucide-react'
+import { Plus, Edit2, Trash2, X, FileText, Tag, Calendar, Check, Loader, Save, Eye, Hash, Upload, FolderOpen } from 'lucide-react'
 import RichTextEditor from '../../components/RichTextEditor'
+import MediaPicker from '../../components/MediaPicker'
 
 const API_BASE = ''
 
@@ -11,17 +12,18 @@ export default function ArticleManager() {
   const [saving, setSaving] = useState(false)
   const [showModal, setShowModal] = useState(false)
   const [editingArticle, setEditingArticle] = useState(null)
-  const [form, setForm] = useState({ 
-    title: '', 
-    summary: '', 
-    content: '', 
-    category: '', 
-    tags: [], 
+  const [form, setForm] = useState({
+    title: '',
+    summary: '',
+    content: '',
+    category: '',
+    tags: [],
     published: true,
     coverImage: ''
   })
 
   const [uploading, setUploading] = useState(false)
+  const [showMediaPicker, setShowMediaPicker] = useState(false)
   const token = localStorage.getItem('token')
 
   useEffect(() => {
@@ -55,6 +57,42 @@ export default function ArticleManager() {
     } finally {
       setUploading(false)
     }
+
+    setLoading(true)
+    try {
+      const tokenValue = localStorage.getItem('token')
+      const headers = {}
+      if (tokenValue) {
+        headers['Authorization'] = `Bearer ${tokenValue}`
+      }
+
+      const res = await fetch(`${API_BASE}/api/admin/articles?page=0&size=100`, { headers })
+
+      if (!res.ok) {
+        console.error('获取文章列表失败:', res.status)
+        const text = await res.text()
+        console.error('Error response:', text)
+        setArticles([])
+        return
+      }
+
+      const text = await res.text()
+      let data
+      try {
+        data = JSON.parse(text)
+      } catch {
+        console.error('Invalid JSON response:', text)
+        setArticles([])
+        return
+      }
+
+      setArticles(Array.isArray(data) ? data : (data.content || []))
+    } catch (err) {
+      console.error('获取文章列表失败:', err)
+      setArticles([])
+    } finally {
+      setLoading(false)
+    }
   }
 
   const fetchArticles = async () => {
@@ -65,9 +103,9 @@ export default function ArticleManager() {
       if (tokenValue) {
         headers['Authorization'] = `Bearer ${tokenValue}`
       }
-      
+
       const res = await fetch(`${API_BASE}/api/admin/articles?page=0&size=100`, { headers })
-      
+
       if (!res.ok) {
         console.error('获取文章列表失败:', res.status)
         const text = await res.text()
@@ -75,7 +113,7 @@ export default function ArticleManager() {
         setArticles([])
         return
       }
-      
+
       const text = await res.text()
       let data
       try {
@@ -85,7 +123,7 @@ export default function ArticleManager() {
         setArticles([])
         return
       }
-      
+
       setArticles(Array.isArray(data) ? data : (data.content || []))
     } catch (err) {
       console.error('获取文章列表失败:', err)
@@ -98,7 +136,7 @@ export default function ArticleManager() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setSaving(true)
-    
+
     const url = editingArticle
       ? `${API_BASE}/api/admin/articles/${editingArticle.id}`
       : `${API_BASE}/api/admin/articles`
@@ -113,18 +151,18 @@ export default function ArticleManager() {
         },
         body: JSON.stringify({ ...form, tags: form.tags.join(',') })
       })
-      
+
       if (res.ok) {
         setShowModal(false)
         setEditingArticle(null)
-        setForm({ 
-          title: '', 
-          summary: '', 
-          content: '', 
-          category: '', 
-          tags: [], 
+        setForm({
+          title: '',
+          summary: '',
+          content: '',
+          category: '',
+          tags: [],
           published: true,
-          coverImage: '' 
+          coverImage: ''
         })
         fetchArticles()
       } else {
@@ -154,13 +192,13 @@ export default function ArticleManager() {
 
   const handleDelete = async (id) => {
     if (!confirm('确定要删除这篇文章吗？此操作不可撤销。')) return
-    
+
     try {
       const res = await fetch(`${API_BASE}/api/admin/articles/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       })
-      
+
       if (res.ok) {
         fetchArticles()
       } else {
@@ -184,14 +222,14 @@ export default function ArticleManager() {
         <button
           onClick={() => {
             setEditingArticle(null)
-            setForm({ 
-              title: '', 
-              summary: '', 
-              content: '', 
-              category: '', 
-              tags: [], 
+            setForm({
+              title: '',
+              summary: '',
+              content: '',
+              category: '',
+              tags: [],
               published: true,
-              coverImage: '' 
+              coverImage: ''
             })
             setShowModal(true)
           }}
@@ -245,11 +283,10 @@ export default function ArticleManager() {
                     )}
                   </td>
                   <td className="px-6 py-4">
-                    <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full ${
-                      article.published 
-                        ? 'bg-green-100 text-green-700' 
-                        : 'bg-gray-100 text-gray-600'
-                    }`}>
+                    <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full ${article.published
+                      ? 'bg-green-100 text-green-700'
+                      : 'bg-gray-100 text-gray-600'
+                      }`}>
                       {article.published && <Check className="w-3 h-3" />}
                       {article.published ? '已发布' : '草稿'}
                     </span>
@@ -268,15 +305,15 @@ export default function ArticleManager() {
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <button 
-                        onClick={() => handleEdit(article)} 
+                      <button
+                        onClick={() => handleEdit(article)}
                         className="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
                         title="编辑"
                       >
                         <Edit2 className="w-4 h-4" />
                       </button>
-                      <button 
-                        onClick={() => handleDelete(article.id)} 
+                      <button
+                        onClick={() => handleDelete(article.id)}
                         className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                         title="删除"
                       >
@@ -307,7 +344,7 @@ export default function ArticleManager() {
                 )}
               </div>
               <div className="flex items-center gap-2">
-                <button 
+                <button
                   onClick={handleSubmit}
                   disabled={saving || !form.title}
                   className="px-4 py-2 bg-white rounded-lg font-medium hover:bg-gray-100 transition-colors disabled:opacity-50 flex items-center gap-2"
@@ -325,8 +362,8 @@ export default function ArticleManager() {
                     </>
                   )}
                 </button>
-                <button 
-                  onClick={() => setShowModal(false)} 
+                <button
+                  onClick={() => setShowModal(false)}
                   className="p-2 text-white/80 hover:text-white transition-colors"
                 >
                   <X className="w-5 h-5" />
@@ -337,7 +374,7 @@ export default function ArticleManager() {
             {/* Content */}
             <div className="flex-1 flex overflow-hidden">
               {/* Left: Meta fields */}
-              <div className="w-80 border-r border-gray-200 p-4 overflow-y-auto bg-gray-50">
+              <div className="w-90 border-r border-gray-200 p-4 overflow-y-auto bg-gray-50">
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -351,7 +388,7 @@ export default function ArticleManager() {
                       className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white"
                     />
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">封面图片</label>
                     <div className="flex gap-2">
@@ -360,9 +397,9 @@ export default function ArticleManager() {
                         placeholder="图片URL或上传图片"
                         value={form.coverImage}
                         onChange={e => setForm({ ...form, coverImage: e.target.value })}
-                        className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white"
+                        className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-100 bg-white"
                       />
-                      <label className="px-4 py-2.5 bg-purple-500 hover:bg-purple-600 text-white rounded-xl cursor-pointer transition-colors flex items-center gap-1.5 whitespace-nowrap">
+                      <label className="px-3 py-2.5 bg-purple-500 hover:bg-purple-600 text-white rounded-xl cursor-pointer transition-colors flex items-center gap-1.5">
                         <Upload className="w-4 h-4" />
                         {uploading ? '上传中' : '上传'}
                         <input
@@ -373,17 +410,26 @@ export default function ArticleManager() {
                           disabled={uploading}
                         />
                       </label>
+                      <button
+                        type="button"
+                        onClick={() => setShowMediaPicker(true)}
+                        className="px-3 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl transition-colors flex items-center gap-1.5"
+                        title="从资源库选择"
+                      >
+                        <FolderOpen className="w-4 h-4" />
+                        库选
+                      </button>
                     </div>
                     {form.coverImage && (
                       <img
                         src={form.coverImage}
                         alt="封面预览"
-                        className="mt-2 w-full h-32 object-cover rounded-lg"
+                        className="mt-2 w-full h-48 object-cover rounded-lg"
                         onError={(e) => e.target.style.display = 'none'}
                       />
                     )}
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">摘要</label>
                     <textarea
@@ -394,7 +440,7 @@ export default function ArticleManager() {
                       rows={3}
                     />
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">分类</label>
                     <input
@@ -405,16 +451,16 @@ export default function ArticleManager() {
                       className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white"
                     />
                   </div>
-                  
+
                   {/* TagInput 组件 */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">标签</label>
-                    <TagInput 
-                      tags={form.tags} 
-                      onChange={(tags) => setForm({ ...form, tags })} 
+                    <TagInput
+                      tags={form.tags}
+                      onChange={(tags) => setForm({ ...form, tags })}
                     />
                   </div>
-                  
+
                   <label className="flex items-center gap-3 p-3 bg-white rounded-xl cursor-pointer hover:bg-gray-100 transition-colors border border-gray-200">
                     <input
                       type="checkbox"
@@ -447,69 +493,77 @@ export default function ArticleManager() {
           </div>
         </div>
       )}
-    </div>
-  )
-}
 
-// ========== TagInput 组件 ==========
-function TagInput({ tags, onChange }) {
-  const [inputValue, setInputValue] = useState('')
-  const inputRef = useRef(null)
-
-  const addTag = (tagText) => {
-    const tag = tagText.trim()
-    if (tag && !tags.includes(tag)) {
-      onChange([...tags, tag])
-    }
-    setInputValue('')
-  }
-
-  const removeTag = (indexToRemove) => {
-    onChange(tags.filter((_, i) => i !== indexToRemove))
-  }
-
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault()
-      addTag(inputValue)
-    } else if (e.key === ',' || e.key === '，') {
-      e.preventDefault()
-      addTag(inputValue)
-    } else if (e.key === 'Backspace' && !inputValue && tags.length > 0) {
-      removeTag(tags.length - 1)
-    }
-  }
-
-  return (
-    <div className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus-within:ring-2 focus-within:ring-purple-500 focus-within:border-purple-500 bg-white flex flex-wrap items-center gap-2 min-h-[46px]">
-      {tags.map((tag, index) => (
-        <motion.span
-          key={tag}
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.8, opacity: 0 }}
-          className="inline-flex items-center gap-1 px-2.5 py-1 bg-purple-100 text-purple-700 text-sm rounded-full"
-        >
-          <Hash className="w-3 h-3" />
-          {tag}
-          <button
-            type="button"
-            onClick={() => removeTag(index)}
-            className="ml-0.5 hover:text-purple-900 hover:bg-purple-200 rounded-full p-0.5 transition-colors"
-          >
-            <X className="w-3 h-3" />
-          </button>
-        </motion.span>
-      ))}
-      <input
-        ref={inputRef}
-        type="text"
-        value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        placeholder={tags.length === 0 ? '输入标签后按回车或逗号添加' : '继续添加...'}
-        className="flex-1 min-w-[120px] outline-none bg-transparent text-sm py-1"
+      {/* 媒体库选择器 */}
+      <MediaPicker
+        isOpen={showMediaPicker}
+        onClose={() => setShowMediaPicker(false)}
+        onSelect={(url) => setForm({ ...form, coverImage: url })}
       />
     </div>
   )
+
+
+  // ========== TagInput 组件 ==========
+  function TagInput({ tags, onChange }) {
+    const [inputValue, setInputValue] = useState('')
+    const inputRef = useRef(null)
+
+    const addTag = (tagText) => {
+      const tag = tagText.trim()
+      if (tag && !tags.includes(tag)) {
+        onChange([...tags, tag])
+      }
+      setInputValue('')
+    }
+
+    const removeTag = (indexToRemove) => {
+      onChange(tags.filter((_, i) => i !== indexToRemove))
+    }
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault()
+        addTag(inputValue)
+      } else if (e.key === ',' || e.key === '，') {
+        e.preventDefault()
+        addTag(inputValue)
+      } else if (e.key === 'Backspace' && !inputValue && tags.length > 0) {
+        removeTag(tags.length - 1)
+      }
+    }
+
+    return (
+      <div className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus-within:ring-2 focus-within:ring-purple-500 focus-within:border-purple-500 bg-white flex flex-wrap items-center gap-2 min-h-[46px]">
+        {tags.map((tag, index) => (
+          <motion.span
+            key={tag}
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.8, opacity: 0 }}
+            className="inline-flex items-center gap-1 px-2.5 py-1 bg-purple-100 text-purple-700 text-sm rounded-full"
+          >
+            <Hash className="w-3 h-3" />
+            {tag}
+            <button
+              type="button"
+              onClick={() => removeTag(index)}
+              className="ml-0.5 hover:text-purple-900 hover:bg-purple-200 rounded-full p-0.5 transition-colors"
+            >
+              <X className="w-3 h-3" />
+            </button>
+          </motion.span>
+        ))}
+        <input
+          ref={inputRef}
+          type="text"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder={tags.length === 0 ? '输入标签后按回车或逗号添加' : '继续添加...'}
+          className="flex-1 min-w-[120px] outline-none bg-transparent text-sm py-1"
+        />
+      </div>
+    )
+  }
 }

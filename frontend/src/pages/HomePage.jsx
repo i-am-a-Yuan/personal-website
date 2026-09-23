@@ -84,10 +84,10 @@ export default function HomePage() {
   }, {})
 
   // 职业标签：从 profile.tags 解析，或使用默认值
-  const defaultTags = language === 'en' 
+  const defaultTags = language === 'en'
     ? ['Full Stack Developer', 'Tech Enthusiast', 'Lifelong Learner', 'Open Source Contributor']
     : ['全栈开发者', '技术爱好者', '终身学习者', '开源贡献者']
-  const typewriterTexts = profile?.tags 
+  const typewriterTexts = profile?.tags
     ? profile.tags.split(',').map(t => t.trim()).filter(Boolean)
     : defaultTags
 
@@ -100,30 +100,30 @@ export default function HomePage() {
   ]
 
   const features = [
-    { 
-      icon: Code, 
-      title: t('home.features.fullStack.title'), 
+    {
+      icon: Code,
+      title: t('home.features.fullStack.title'),
       desc: t('home.features.fullStack.desc'),
       gradient: 'from-blue-500 to-cyan-500',
       shadowColor: 'blue'
     },
-    { 
-      icon: Database, 
-      title: t('home.features.architecture.title'), 
+    {
+      icon: Database,
+      title: t('home.features.architecture.title'),
       desc: t('home.features.architecture.desc'),
       gradient: 'from-purple-500 to-pink-500',
       shadowColor: 'purple'
     },
-    { 
-      icon: Globe, 
-      title: t('home.features.writing.title'), 
+    {
+      icon: Globe,
+      title: t('home.features.writing.title'),
       desc: t('home.features.writing.desc'),
       gradient: 'from-amber-500 to-orange-500',
       shadowColor: 'amber'
     },
-    { 
-      icon: Rocket, 
-      title: t('home.features.innovation.title'), 
+    {
+      icon: Rocket,
+      title: t('home.features.innovation.title'),
       desc: t('home.features.innovation.desc'),
       gradient: 'from-emerald-500 to-teal-500',
       shadowColor: 'emerald'

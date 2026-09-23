@@ -25,6 +25,9 @@ jwt:
   secret: your-256-bit-secret-key-for-jwt-token-generation-min-32-characters
   expiration: 86400000
 
+app:
+  upload-dir: ./uploads
+
 cors:
   allowed-origins: http://localhost:3000,http://localhost:5173
 

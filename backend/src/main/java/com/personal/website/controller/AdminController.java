@@ -3,6 +3,7 @@ package com.personal.website.controller;
 import com.personal.website.config.JwtService;
 import com.personal.website.entity.*;
 import com.personal.website.repository.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -10,6 +11,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
@@ -22,19 +28,25 @@ public class AdminController {
     private final ProjectRepository projectRepository;
     private final SkillRepository skillRepository;
     private final UserRepository userRepository;
+    private final MediaRepository mediaRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+
+    @Value("${app.upload-dir:./uploads}")
+    private String uploadDir;
 
     public AdminController(ArticleRepository articleRepository,
                           ProjectRepository projectRepository,
                           SkillRepository skillRepository,
                           UserRepository userRepository,
+                          MediaRepository mediaRepository,
                           PasswordEncoder passwordEncoder,
                           JwtService jwtService) {
         this.articleRepository = articleRepository;
         this.projectRepository = projectRepository;
         this.skillRepository = skillRepository;
         this.userRepository = userRepository;
+        this.mediaRepository = mediaRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
     }
@@ -47,6 +59,7 @@ public class AdminController {
         PageRequest pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         return ResponseEntity.ok(articleRepository.findAll(pageable));
     }
+
     
     @PostMapping("/articles")
     public ResponseEntity<Article> createArticle(@RequestBody Article article) {
@@ -256,6 +269,58 @@ public class AdminController {
                     "message", "用户名修改成功",
                     "token", newToken,
                     "username", finalNewUsername
+                ));
+            })
+            .orElse(ResponseEntity.notFound().build());
+    }
+
+    // === Media Management ===
+
+    // 媒体列表（分页）
+    @GetMapping("/media")
+    public ResponseEntity<Page<Media>> getMediaList(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) String category) {
+        PageRequest pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        if (category != null && !category.isBlank()) {
+            return ResponseEntity.ok(mediaRepository.findByCategoryOrderByCreatedAtDesc(category, pageable));
+        }
+        return ResponseEntity.ok(mediaRepository.findAllByOrderByCreatedAtDesc(pageable));
+    }
+
+    // 重命名媒体（只改显示名，不改存储文件名）
+    @PutMapping("/media/{id}")
+    public ResponseEntity<Media> renameMedia(@PathVariable Long id, @RequestBody Map<String, String> body) {
+        String newFilename = body.get("filename");
+        if (newFilename == null || newFilename.isBlank()) {
+            return ResponseEntity.badRequest().build();
+        }
+        return mediaRepository.findById(id)
+            .map(media -> {
+                media.setFilename(newFilename);
+                return ResponseEntity.ok(mediaRepository.save(media));
+            })
+            .orElse(ResponseEntity.notFound().build());
+    }
+
+    // 删除媒体（同时删数据库记录和磁盘文件）
+    @DeleteMapping("/media/{id}")
+    public ResponseEntity<?> deleteMedia(@PathVariable Long id) {
+        return mediaRepository.findById(id)
+            .map(media -> {
+                // 删除磁盘上的文件
+                Path filePath = Paths.get(uploadDir, media.getFullPath());
+                try {
+                    Files.deleteIfExists(filePath);
+                } catch (IOException e) {
+                    // 文件删除失败不阻塞数据库删除，记录一下即可
+                    System.err.println("删除媒体文件失败: " + e.getMessage());
+                }
+                mediaRepository.delete(media);
+                return ResponseEntity.ok().body(Map.of(
+                    "message", "删除成功",
+                    "refCount", media.getRefCount()
                 ));
             })
             .orElse(ResponseEntity.notFound().build());
