@@ -50,8 +50,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/public/**").permitAll()
                 // 开发期H2控制台
-                .requestMatchers("/h2-console/**").permitAll()
-                .requestMatchers("/**").permitAll()  // Allow all requests for development
+//                .requestMatchers("/h2-console/**").permitAll()
+//                .requestMatchers("/**").permitAll()  // Allow all requests for development
 //                .requestMatchers("/api/admin/**").hasRole("ADMIN") // 未配置角色
                 .anyRequest()
                 .authenticated()
