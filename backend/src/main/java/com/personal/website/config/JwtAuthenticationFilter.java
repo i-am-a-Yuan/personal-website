@@ -42,6 +42,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
 
+        // 没有 token 或不是 Bearer 格式：直接放行到规则层，
+        // 由 permitAll 路径放行，或由 authenticated/hasRole 路径返回 401/403
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
@@ -52,6 +54,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             final String username = jwtService.extractUsername(jwt);
 
+            // 避免同一请求重复设置认证信息
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
