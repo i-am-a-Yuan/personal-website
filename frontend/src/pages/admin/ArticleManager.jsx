@@ -57,7 +57,45 @@ export default function ArticleManager() {
     } finally {
       setUploading(false)
     }
+
+    setLoading(true)
+    try {
+      const tokenValue = localStorage.getItem('token')
+      const headers = {}
+      if (tokenValue) {
+        headers['Authorization'] = `Bearer ${tokenValue}`
+      }
+
+      const res = await fetch(`${API_BASE}/api/admin/articles?page=0&size=100`, { headers })
+
+      if (!res.ok) {
+        console.error('获取文章列表失败:', res.status)
+        const text = await res.text()
+        console.error('Error response:', text)
+        setArticles([])
+        return
+      }
+
+      const text = await res.text()
+      let data
+      try {
+        data = JSON.parse(text)
+      } catch {
+        console.error('Invalid JSON response:', text)
+        setArticles([])
+        return
+      }
+
+      setArticles(Array.isArray(data) ? data : (data.content || []))
+    } catch (err) {
+      console.error('获取文章列表失败:', err)
+      setArticles([])
+    } finally {
+      setLoading(false)
+    }
   }
+
+  const fetchArticles = async () => {
     setLoading(true)
     try {
       const tokenValue = localStorage.getItem('token')
@@ -336,7 +374,7 @@ export default function ArticleManager() {
             {/* Content */}
             <div className="flex-1 flex overflow-hidden">
               {/* Left: Meta fields */}
-              <div className="w-80 border-r border-gray-200 p-4 overflow-y-auto bg-gray-50">
+              <div className="w-90 border-r border-gray-200 p-4 overflow-y-auto bg-gray-50">
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -386,7 +424,7 @@ export default function ArticleManager() {
                       <img
                         src={form.coverImage}
                         alt="封面预览"
-                        className="mt-2 w-full h-32 object-cover rounded-lg"
+                        className="mt-2 w-full h-48 object-cover rounded-lg"
                         onError={(e) => e.target.style.display = 'none'}
                       />
                     )}
@@ -464,67 +502,68 @@ export default function ArticleManager() {
       />
     </div>
   )
-}
 
-// ========== TagInput 组件 ==========
-function TagInput({ tags, onChange }) {
-  const [inputValue, setInputValue] = useState('')
-  const inputRef = useRef(null)
 
-  const addTag = (tagText) => {
-    const tag = tagText.trim()
-    if (tag && !tags.includes(tag)) {
-      onChange([...tags, tag])
+  // ========== TagInput 组件 ==========
+  function TagInput({ tags, onChange }) {
+    const [inputValue, setInputValue] = useState('')
+    const inputRef = useRef(null)
+
+    const addTag = (tagText) => {
+      const tag = tagText.trim()
+      if (tag && !tags.includes(tag)) {
+        onChange([...tags, tag])
+      }
+      setInputValue('')
     }
-    setInputValue('')
-  }
 
-  const removeTag = (indexToRemove) => {
-    onChange(tags.filter((_, i) => i !== indexToRemove))
-  }
-
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault()
-      addTag(inputValue)
-    } else if (e.key === ',' || e.key === '，') {
-      e.preventDefault()
-      addTag(inputValue)
-    } else if (e.key === 'Backspace' && !inputValue && tags.length > 0) {
-      removeTag(tags.length - 1)
+    const removeTag = (indexToRemove) => {
+      onChange(tags.filter((_, i) => i !== indexToRemove))
     }
-  }
 
-  return (
-    <div className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus-within:ring-2 focus-within:ring-purple-500 focus-within:border-purple-500 bg-white flex flex-wrap items-center gap-2 min-h-[46px]">
-      {tags.map((tag, index) => (
-        <motion.span
-          key={tag}
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.8, opacity: 0 }}
-          className="inline-flex items-center gap-1 px-2.5 py-1 bg-purple-100 text-purple-700 text-sm rounded-full"
-        >
-          <Hash className="w-3 h-3" />
-          {tag}
-          <button
-            type="button"
-            onClick={() => removeTag(index)}
-            className="ml-0.5 hover:text-purple-900 hover:bg-purple-200 rounded-full p-0.5 transition-colors"
+    const handleKeyDown = (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault()
+        addTag(inputValue)
+      } else if (e.key === ',' || e.key === '，') {
+        e.preventDefault()
+        addTag(inputValue)
+      } else if (e.key === 'Backspace' && !inputValue && tags.length > 0) {
+        removeTag(tags.length - 1)
+      }
+    }
+
+    return (
+      <div className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus-within:ring-2 focus-within:ring-purple-500 focus-within:border-purple-500 bg-white flex flex-wrap items-center gap-2 min-h-[46px]">
+        {tags.map((tag, index) => (
+          <motion.span
+            key={tag}
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.8, opacity: 0 }}
+            className="inline-flex items-center gap-1 px-2.5 py-1 bg-purple-100 text-purple-700 text-sm rounded-full"
           >
-            <X className="w-3 h-3" />
-          </button>
-        </motion.span>
-      ))}
-      <input
-        ref={inputRef}
-        type="text"
-        value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        placeholder={tags.length === 0 ? '输入标签后按回车或逗号添加' : '继续添加...'}
-        className="flex-1 min-w-[120px] outline-none bg-transparent text-sm py-1"
-      />
-    </div>
-  )
+            <Hash className="w-3 h-3" />
+            {tag}
+            <button
+              type="button"
+              onClick={() => removeTag(index)}
+              className="ml-0.5 hover:text-purple-900 hover:bg-purple-200 rounded-full p-0.5 transition-colors"
+            >
+              <X className="w-3 h-3" />
+            </button>
+          </motion.span>
+        ))}
+        <input
+          ref={inputRef}
+          type="text"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder={tags.length === 0 ? '输入标签后按回车或逗号添加' : '继续添加...'}
+          className="flex-1 min-w-[120px] outline-none bg-transparent text-sm py-1"
+        />
+      </div>
+    )
+  }
 }
