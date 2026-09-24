@@ -158,8 +158,8 @@ export default function Footer({ profile }) {
             </span>
             <span className="mx-2">·</span>
             <span>{t('footer.rights')}</span>
-            <span className="mx-2"> | </span>
-            <span className="mx-2" href="http://beian.miit.gov.cn/">沪ICP备2026047404号</span>
+            <span className="mx-2">|</span>
+            <a className="mx-2" href="http://beian.miit.gov.cn/">沪ICP备2026047404号</a>
 
           </p>
 
