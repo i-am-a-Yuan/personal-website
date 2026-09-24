@@ -22,7 +22,7 @@ export default function Footer({ profile }) {
       title: t('footer.contact'),
       links: [
         { label: 'GitHub', href: profile?.github || 'https://github.com', external: true },
-        { label: 'LinkedIn', href: profile?.linkedin || 'https://linkedin.com', external: true },
+        // { label: 'LinkedIn', href: profile?.linkedin || 'https://linkedin.com', external: true },
         { label: 'Email', href: profile?.emailPublic ? `mailto:${profile.emailPublic}` : 'mailto:hello@example.com', external: true },
       ]
     }
@@ -78,8 +78,8 @@ export default function Footer({ profile }) {
             >
               {[
                 { icon: Github, href: profile?.github || 'https://github.com', label: 'GitHub' },
-                { icon: Twitter, href: profile?.twitter || 'https://twitter.com', label: 'Twitter' },
-                { icon: Linkedin, href: profile?.linkedin || 'https://linkedin.com', label: 'LinkedIn' },
+                // { icon: Twitter, href: profile?.twitter || 'https://twitter.com', label: 'Twitter' },
+                // { icon: Linkedin, href: profile?.linkedin || 'https://linkedin.com', label: 'LinkedIn' },
                 { icon: Mail, href: profile?.emailPublic ? `mailto:${profile.emailPublic}` : 'mailto:hello@example.com', label: 'Email' },
               ].map((social, index) => (
                 <motion.a
@@ -150,13 +150,17 @@ export default function Footer({ profile }) {
           className="flex flex-col md:flex-row justify-between items-center text-gray-500 text-sm"
         >
           <p className="flex items-center mb-4 md:mb-0">
-            <span>© {currentYear}</span>
+            {/* <span>© {currentYear}</span> */}
+            <span>@ 2026</span>
             <span className="mx-2">·</span>
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400 font-medium">
               {profile?.nickname || (language === 'en' ? 'My Website' : '我的网站')}
             </span>
             <span className="mx-2">·</span>
             <span>{t('footer.rights')}</span>
+            <span className="mx-2"> | </span>
+            <span className="mx-2" href="http://beian.miit.gov.cn/">沪ICP备2026047404号</span>
+
           </p>
 
           <p className="flex items-center">
