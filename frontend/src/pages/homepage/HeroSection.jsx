@@ -164,7 +164,7 @@ export default function HeroSection({ profile, typewriterTexts, t, mousePosition
         >
           {[
             { icon: Github, href: profile?.github || 'https://github.com', label: 'GitHub' },
-            { icon: Linkedin, href: profile?.linkedin || 'https://linkedin.com', label: 'LinkedIn' },
+            // { icon: Linkedin, href: profile?.linkedin || 'https://linkedin.com', label: 'LinkedIn' },
             { icon: Mail, href: profile?.emailPublic ? `mailto:${profile.emailPublic}` : 'mailto:hello@example.com', label: 'Email' },
           ].map((social, index) => (
             <motion.a
